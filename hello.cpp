@@ -15,12 +15,13 @@ enum TokenType {
   TT_LBRACE    = 6,  // '{'
   TT_RBRACE    = 7,  // '}'
   TT_RETURN    = 8,  // "return"
-  TT_VOID      = 9,  // "void"
-  TT_CONST     = 10, // "const"
-  TT_SEMICOLON = 11,  // ';'
+  TT_RETURNS   = 9,  // "returns"
+  TT_FUNCTION  = 10,  // "function"
+  TT_SEMICOLON = 11, // ';'
   TT_COMMA     = 12, // ','
   TT_NUMBER    = 13, // An integer literal
-  TT_EOF       = 14, // End of file
+  TT_COLON     = 14, // ':'
+  TT_EOF       = 15, // End of file
 };
 
 
@@ -42,8 +43,7 @@ public:
       case TT_NONE: return "none";
       case TT_AUTO: return "auto";
       case TT_INT: return "int";
-      case TT_VOID: return "void";
-      case TT_CONST: return "const";
+      case TT_FUNCTION: return "function";
       case TT_IDENT: return ident.c_str();
       case TT_LPAR: return "(";
       case TT_RPAR: return ")";
@@ -53,6 +53,8 @@ public:
       case TT_RETURN: return "return";
       case TT_SEMICOLON: return ";";
       case TT_NUMBER: return "number";
+      case TT_COLON: return ":";
+      case TT_RETURNS: return "returns";
       case TT_EOF: return "<EOF>";
     }
   }
@@ -98,6 +100,7 @@ public:
 
       switch (c) {
         case '(': return Token(line, col, TT_LPAR);
+	case ':': return Token(line, col, TT_COLON);
         case ')': return Token(line, col, TT_RPAR);
         case ',': return Token(line, col, TT_COMMA);
         case ';': return Token(line, col, TT_SEMICOLON);
@@ -344,21 +347,19 @@ private:
 };
 
 class Parser {
-  // This parser is somewhat limited and only supports parts of the syntax
-  // given in the parser.ebnf file
-  // top-level ::= { top-level-elem }
-  // top-level-elem := fun-definition
-  // fun-definition  ::= fun-signature compound-statement
-  // compound-stmt ::= '{' statement-list '}'
-  // statement-list  ::= { statement }
-  // statement ::= return_stmt
-  // return-stmt ::= kw-return expression ';'
-  // expression ::= integer
-  // fun-signature ::= tyy-return identifier '(' tyyid-pair-list ')'
-  // tyyid-pair-list ::= tyyid-pair { ',' tyyid-pair }
-  // tyyid-pair  ::= [ kw-const ] kw-int identifier
-  // tyy-return ::= kw-int | kw-void
-
+  // The parser supports a simple grammar for the language
+  // program := { top-level-statements }
+  // top-level-statements := fun-decl
+  // fun-decl := fun-signature '{' compound-statements '}'
+  // compound-statements := return_stmt
+  // return_stmt := "return" ';' | "return" expr ';'
+  // expr := integer
+  // fun-signature := "function" ident '(' params ')' [ "returns" ty-ret] 
+  // params := param { ',' param }
+  // param  := ident ':' ty-params
+  // ty-params := "int"
+  // ty-ret := "int"		 
+  //
 };
 
 

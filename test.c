@@ -1,1 +1,1 @@
-int main (int argc) { return 0x1345; }
+function (argc:int) returns int { return 0; }
