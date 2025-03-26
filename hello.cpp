@@ -15,7 +15,7 @@ enum TokenType {
   TT_LBRACE    = 6,  // '{'
   TT_RBRACE    = 7,  // '}'
   TT_RETURN    = 8,  // "return"
-  TT_RETURNS   = 9,  // "returns"
+  TT_RETURNS   = 9,  // "->"
   TT_FUNCTION  = 10,  // "function"
   TT_SEMICOLON = 11, // ';'
   TT_COMMA     = 12, // ','
@@ -54,7 +54,7 @@ public:
       case TT_SEMICOLON: return ";";
       case TT_NUMBER: return "number";
       case TT_COLON: return ":";
-      case TT_RETURNS: return "returns";
+      case TT_RETURNS: return "->";
       case TT_EOF: return "<EOF>";
     }
   }
@@ -106,6 +106,15 @@ public:
         case ';': return Token(line, col, TT_SEMICOLON);
         case '{': return Token(line, col, TT_LBRACE);
         case '}': return Token(line, col, TT_RBRACE);
+	case '-': {
+	  char next = Peek();
+	  if (next == '>') {
+	    readChar(); // consume the '>'
+	    return Token(line, col, TT_RETURNS);
+	  }
+	  
+	  Error("'-' not expected here");
+	}
       }
 
       if (isTerminator(c))
@@ -146,15 +155,23 @@ private:
     // Only get new characters if we haven't reached EOF already
     if (isEOF())
 	    return 0;
+    char c = 0;
+    while (1) {
+      c = file.get();
+      if (isEOF())
+        return 0; // EOF
+      else if (c == ' ' || c == '\t')
+        col++;
+      else if (c == '\n') {
+        line++;
+	col = 0;
+      }
+      else
+	break;
+      
+    }
 
-    int c = file.get();
-    if (isEOF())
-      return 0; // EOF
-    col++;
-
-    if (c == '\n')
-      line++;
-    return (char) c;
+    return c;
   }
 
   void putBack(char c) {
@@ -354,7 +371,7 @@ class Parser {
   // compound-statements := return_stmt
   // return_stmt := "return" ';' | "return" expr ';'
   // expr := integer
-  // fun-signature := "function" ident '(' params ')' [ "returns" ty-ret] 
+  // fun-signature := "function" ident '(' params ')' [ "->" ty-ret] 
   // params := param { ',' param }
   // param  := ident ':' ty-params
   // ty-params := "int"
