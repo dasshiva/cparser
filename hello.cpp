@@ -42,6 +42,8 @@ public:
       case TT_NONE: return "none";
       case TT_AUTO: return "auto";
       case TT_INT: return "int";
+      case TT_VOID: return "void";
+      case TT_CONST: return "const";
       case TT_IDENT: return ident.c_str();
       case TT_LPAR: return "(";
       case TT_RPAR: return ")";
@@ -91,7 +93,7 @@ public:
 
     while (1) {
       int c = readChar();
-      if (c == -1)
+      if (c == 0)
         return Token(line, col, TT_EOF);
 
       switch (c) {
@@ -138,9 +140,13 @@ private:
   }
 
   char readChar() {
+    // Only get new characters if we haven't reached EOF already
+    if (isEOF())
+	    return 0;
+
     int c = file.get();
     if (isEOF())
-      return -1; // EOF
+      return 0; // EOF
     col++;
 
     if (c == '\n')
@@ -149,7 +155,7 @@ private:
   }
 
   void putBack(char c) {
-    if (c == -1) // do not allow EOF to be putback
+    if (!c) // do not allow EOF to be putback
       return;
 
     file.putback(c);
@@ -159,14 +165,14 @@ private:
   }
 
   char Peek() {
-    int c = file.get();
+    char c = file.get();
     putBack(c);
     return (char) c;
   }
 
   bool isTerminator(char c) {
     return (c == '\n') || (c == '\t') || (c == ' ') ||
-      (c == -1) || (c == ';');
+      (!c) || (c == ';');
   }
 
   // Determines if 'c' can occur in an identifier
