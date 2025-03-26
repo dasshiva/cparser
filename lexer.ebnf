@@ -1,0 +1,104 @@
+// This file is obtained from https://gist.github.com/Chubek/52884d1fa766fa16ae8d8f226ba105ad
+// Enclosed within two ?s is a global capture, it does not mean optional. It means 'I am writing a free-style sentence'.
+// Enclosed within { and } means : repeat at least zero times
+// Enclosed within [ and ] means : this is optional
+// Enclosed within ( and ) means : this is a group
+
+Gramamr::Lexical::ANSI-C
+
++Lexical::Keywords
+
+kw-auto		::= "auto"
+kw-break	::= "break"
+kw-case		::= "case"
+kw-char		::= "char"
+kw-const	::= "const"
+kw-continue	::= "continue"
+kw-default	::= "default"
+kw-do		::= "do"
+kw-double	::= "double"
+kw-else		::= "else"
+kw-enum 	::= "enum"
+kw-extern 	::= "extern"
+kw-float 	::= "float"
+kw-for 		::= "for"
+kw-goto 	::= "goto"
+kw-if 		::= "if"
+kw-int 		::= "int"
+kw-long 	::= "long"
+kw-register 	::= "register"
+kw-return 	::= "return"
+kw-short 	::= "short"
+kw-signed 	::= "signed"
+kw-sizeof 	::= "sizeof"
+kw-static 	::= "static"
+kw-struct 	::= "struct"
+kw-switch 	::= "switch"
+kw-typedef 	::= "typedef"
+kw-union 	::= "union"
+kw-unsigned 	::= "unsigned"
+kw-void 	::= "void"
+kw-volatile 	::= "volatile"
+kw-while 	::= "while"
+
++Lexical::LiteralTokens
+
+const-literal	::= expr-const | str-const | char-const | num-const | int-const | null-const
+
+null-const	::= "NULL"
+
+expr-const	::= int-const { ( '+' | '-' | '*' | '%' | '/' | '&' | '|' ) int-const }
+
+str-const	::= [ 'L' ] '"' { character } '"'
+
+char-const	::= "'" character  "'"
+
+num-const	::= integer | rational
+
+float-const	::= float
+
+int-const	::= integer | char-const
+
+rational	::= [ intenger ] '.' integer
+
+integer		::= dec-integer | hex-integer | oct-integer | bin-integer
+
+bin-integer	::= ( "0b" | "0B" ) bin-digit { bin-digit }
+
+oct-integer	::= ( "0o" | "0O" ) oct-digt { oct-digit }
+
+hex-integer	::= ( "0x" | "0X" ) hex-digit { hex-digit }
+
+dec-integer	::= digit { digit }
+
+identifier	::= ( letter | '_' ) { letter | digit | '_' }
+
+letter		::= upper-case | lower-case
+
+lower-case	::= 'a' | 'b' | 'c' | ... | 'x' | 'y' | 'z'
+
+upper-case	::= 'A' | 'B' | 'C' | ... | 'X' | 'Y' | 'Z'
+
+hex-digit	::= digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
+			 | 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
+
+digit		::= oct-digit | '8' | '9'
+
+oct-digit	::= bin-digit | '2' | '3' | '4' | '5' | '6' | '7'
+
+bin-digit	::= '0' | '1'
+
+character	::= printable | char-escape | hex-escape | oct-escape
+
+printable	::= ' ' | '!' | '"' | ... | '|' | '}' | '~'
+
+char-escape	::= '\' escapable
+
+hex-escape	::= "\x" hex-digit hex-digit
+
+oct-escape	::= '\' oct-digit oct-dit oct-digit
+
+escapble	::= 'n' | 'a' | 'b' | 't' | 'f' | 'r' | 'v' | '\' | "'" | '"' | '?' | '0'
+
+comment		::= "// " ? any-char ? "\n"
+		| "/*" ? any-char "*/"
