@@ -1,5 +1,4 @@
 #include "lexer.hpp"
-#include <iostream>
 #include <cstdlib>
 
 class Parser {

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20.0)
 project(lang VERSION 0.0.1)
 
 set(CMAKE_CXX_FLAGS "-Iinclude")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 file(GLOB_RECURSE LANGC_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 set(LANGC_INCLUDE_DIRS "include/")
@@ -10,4 +11,4 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_executable(langc ${LANGC_SOURCES} ${LANGC_HEADERS})
-target_include_directories(langc PRIVATE LANGC_INCLUDE_DIRS)
+target_include_directories(langc PRIVATE ${LANGC_INCLUDE_DIRS})
