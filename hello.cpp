@@ -24,7 +24,7 @@ enum TokenType {
   TT_EOF       = 15, // End of file
 };
 
-
+class Parser;
 class Token {
 public:
   Token(unsigned line, unsigned col, TokenType type) :
@@ -73,11 +73,13 @@ private:
   unsigned  col;
   std::string ident;
   long        num;
+
+  friend class Parser;
 };
 
 class Lexer {
 public:
-  Lexer(const char* name) : filename(name), line(1), col(0) {
+  Lexer(const char* name) : filename(name), line(1), col(1) {
     file.open(name, std::ifstream::in);
     if (!file.is_open()) 
       valid = false;
@@ -166,8 +168,10 @@ private:
         line++;
 	col = 0;
       }
-      else
+      else {
+	col++;
 	break;
+      }
       
     }
 
@@ -376,7 +380,46 @@ class Parser {
   // param  := ident ':' ty-params
   // ty-params := "int"
   // ty-ret := "int"		 
-  //
+public:
+  Parser(Lexer* lex) : lexer(lex), level(0) {}
+  int Parse() {
+    while (1) { 
+      // We are here only at top-level 'program'
+      // program ::= declarations | EOF
+      // declaeations := fun-decl
+      // fun-decl := "function" fun-signature fun-body
+      Token tk = lexer->Next();
+      if (tk.getType() == TT_EOF)
+	break;
+      else if (tk.getType() == TT_FUNCTION) {
+	if (parseFunction() > 0)
+	  return 1;
+      }
+      else 
+	Error("Unexpected token", &tk);
+      
+    }
+
+    return 0;
+  }
+
+private: 
+  Lexer* lexer;
+  unsigned level;
+  int parseFunction() {
+    return 0;
+  }
+
+  void Error(const char* msg, Token* tk = nullptr) {
+    std::cout << "ERROR: ";
+    if (tk != nullptr) {
+      std::cout << "At line " << tk->line << " column " << tk->col << '\n';;
+      std::cout << "'" << tk->toString();
+      std::cout << "' -> ";
+    }
+    std::cout << msg << "\n";
+    std::exit(1);
+  }
 };
 
 
@@ -390,6 +433,9 @@ int main(int argc, const char** argv) {
     return 1;
   }
 
+  Parser parser(&lex);
+  parser.Parse();
+  /*
   while (1) {
     Token tk = lex.Next();
     if (tk.getType() == TT_EOF)
@@ -398,6 +444,6 @@ int main(int argc, const char** argv) {
     if (tk.getType() == TT_NUMBER)
       std::cout << '(' << tk.getNum() << ')';
     std::cout << '\n';
-  }
+  } */
   return 0;
 }
