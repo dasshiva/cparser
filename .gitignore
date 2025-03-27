@@ -1,3 +1,6 @@
 main
 a.out
 **.swp
+CMakeFiles/**
+CMakeCache.txt
+cmake_install.cmake
