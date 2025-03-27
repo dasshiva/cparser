@@ -34,6 +34,8 @@ const char *Token::toString() {
     return "->";
   case TT_EOF:
     return "<EOF>";
+  default:
+    return "unreachable";
   }
 }
 
