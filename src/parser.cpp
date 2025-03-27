@@ -31,4 +31,6 @@ void Parser::Error(const char *msg, Token *tk) {
   std::exit(1);
 }
 
-int Parser::parseFunction() { return 0; }
+int Parser::parseFunction() { 
+  return 0; 
+}
