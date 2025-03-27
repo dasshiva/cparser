@@ -15,7 +15,19 @@ private:
   Program root;
 
   int parseFunction();
-  void Error(const char* msg, Token* tk = nullptr); 
+  int parseFunctionBody(Function &fn);
+  [[noreturn]] void Error(const char* msg, Token* tk = nullptr);
+  Token expect(TokenType expected, const char* msg) {
+    Token tk = lexer->Next();
+    if (tk.getType() != expected) 
+      Error(msg, &tk); 
+    return tk;
+  }
+
+  void expect(Token tk, TokenType expect, const char* msg) {
+    if (tk.getType() != expect) 
+      Error(msg, &tk); 
+  }
 };
 
 #endif

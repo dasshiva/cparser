@@ -1,3 +1,3 @@
-function (argc:int) -> int { 
-	return 0; 
+function main(argc:int) -> int { 
+   return 0; 
 }

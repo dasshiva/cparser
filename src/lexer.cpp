@@ -1,4 +1,5 @@
 #include "lexer.hpp"
+#include "utility.hpp"
 
 const char *Token::toString() {
   switch (type) {
@@ -49,6 +50,7 @@ Token Lexer::Next() {
       return Token(line, col, TT_EOF);
 
     switch (c) {
+    case ' ': continue;
     case '(':
       return Token(line, col, TT_LPAR);
     case ':':
@@ -100,8 +102,8 @@ char Lexer::readChar() {
     c = file.get();
     if (isEOF())
       return 0; // EOF
-    else if (c == ' ' || c == '\t')
-      col++;
+    else if (c == '\t')
+      col += 4; // one tab is 4 spaces
     else if (c == '\n') {
       line++;
       col = 0;
@@ -145,7 +147,7 @@ Token Lexer::lexIdentifier() {
   unsigned len = 0;
 
   // Save where the identifier starts
-  unsigned savedLine = col, savedCol = col;
+  unsigned savedLine = line, savedCol = col;
 
   // No need to check if the first character is a letter or '_' as that
   // was already done by Next() before calling us

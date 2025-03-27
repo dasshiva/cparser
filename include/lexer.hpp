@@ -1,7 +1,6 @@
 #ifndef __LEXER_HPP__
 #define __LEXER_HPP__
 
-#include "utility.hpp"
 #include <cstdlib>
 #include <fstream>
 #include <string>
