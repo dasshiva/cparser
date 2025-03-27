@@ -31,6 +31,11 @@ void Parser::Error(const char *msg, Token *tk) {
   std::exit(1);
 }
 
-int Parser::parseFunction() { 
+int Parser::parseFunction() {
+  // fun-signature := identifer '(' params ')' [ "->" type]
+  // params := param { ',' param }
+  // params := identifier ':' type
+  // type   := "int"
+  // fun-body := '{' compound-stmt '}'
   return 0; 
 }
