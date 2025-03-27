@@ -4,6 +4,36 @@
 #include <string>
 #include <cstdlib>
 #include <cstdio>
+#include <map>
+#include <functional>
+
+class StringSwitch {
+public:
+  StringSwitch(std::string &t, std::function<void()> def) 
+          : target(t), actionDefault(def) {}
+
+  StringSwitch Case(const char* str, std::function<void()>& action) {
+    actions[str] = action;
+    return *this;
+  }
+
+  void Execute() {
+    for (auto it = actions.begin();  it != actions.end(); ++it) {
+      if (it->first == target) {
+        it->second();
+        return;
+      }
+    }
+
+    actionDefault();
+  }
+
+private:
+  std::string target;
+  std::map<std::string, std::function<void()>> actions;
+  std::function<void()> actionDefault;
+  
+};
 
 enum TokenType {
   TT_NONE      = 0,  // returned if the lexer doesn't understand what a toke is
@@ -27,6 +57,7 @@ enum TokenType {
 class Parser;
 class Token {
 public:
+  Token() : line(0), col(0), type(TT_NONE) {}
   Token(unsigned line, unsigned col, TokenType type) :
       line(line), col(col), type(type) {}
 
@@ -59,7 +90,7 @@ public:
     }
   }
 
-  TokenType getType () const {
+  TokenType getType () {
     return type;
   }
 
@@ -79,7 +110,7 @@ private:
 
 class Lexer {
 public:
-  Lexer(const char* name) : filename(name), line(1), col(1) {
+  Lexer(const char* name) : filename(name), line(1), col(0) {
     file.open(name, std::ifstream::in);
     if (!file.is_open()) 
       valid = false;
@@ -263,8 +294,27 @@ private:
     if (!terminated) 
       Error("Identifier too long");
 
-    Token ret(savedLine, savedCol, TT_IDENT);
-    ret.setData(ident);
+    Token ret;
+    std::function<void()> f1 = [&ret, savedLine, savedCol] () mutable
+          { ret = Token(savedLine, savedCol, TT_INT); };
+    std::function<void()> f2= [&ret, savedLine, savedCol] () mutable
+          { ret = Token(savedLine, savedCol, TT_FUNCTION); };
+    std::function<void()> f3 = [&ret, savedLine, savedCol] () mutable 
+          { ret = Token(savedLine, savedCol, TT_AUTO); };
+    std::function<void()> f4 = [&ret, savedLine, savedCol] () mutable 
+          { ret = Token(savedLine, savedCol, TT_RETURN); }; 
+    std::function<void()> f5 = [&ret, savedLine, savedCol, ident] () mutable {
+            ret = Token(savedLine, savedCol, TT_IDENT); 
+            ret.setData(ident);
+          }; 
+
+    StringSwitch ss(ident, f5);
+    ss.Case("int", f1);
+    ss.Case("function", f2);
+    ss.Case("auto", f3);
+    ss.Case("return", f4);
+    ss.Execute();
+
     return ret;
   }
 
@@ -368,18 +418,6 @@ private:
 };
 
 class Parser {
-  // The parser supports a simple grammar for the language
-  // program := { top-level-statements }
-  // top-level-statements := fun-decl
-  // fun-decl := fun-signature '{' compound-statements '}'
-  // compound-statements := return_stmt
-  // return_stmt := "return" ';' | "return" expr ';'
-  // expr := integer
-  // fun-signature := "function" ident '(' params ')' [ "->" ty-ret] 
-  // params := param { ',' param }
-  // param  := ident ':' ty-params
-  // ty-params := "int"
-  // ty-ret := "int"		 
 public:
   Parser(Lexer* lex) : lexer(lex), level(0) {}
   int Parse() {
